@@ -1,45 +1,41 @@
 # 🚀 CodeQuery
 
-A high-performance, lightweight search utility built with Flask that allows users to query and retrieve programming solutions from a structured JSON dataset through a responsive web interface.
+A lightweight, browser-based search tool designed to query and display programming solutions and technical notes. This project runs entirely on the client side using vanilla web technologies.
 
 ---
 
 <div align="left">
-  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
-  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
 </div>
 
 ---
 
 ### 📌 Overview
-**CodeQuery** serves as a localized knowledge base for developers. It bridges the gap between static data and user accessibility by providing a searchable frontend for a local repository of technical questions and code snippets.
+**CodeQuery** is a front-end application that allows users to search through a collection of code snippets. It is designed for speed and simplicity, requiring no server-side processing or database setup.
 
-### 🛠️ Technical Stack
+### 🛠️ Tech Stack
 | Component | Technology |
 | :--- | :--- |
-| **Backend** | Flask |
-| **Frontend** | HTML5, CSS3 (Vanilla) |
-| **Data Engine** | JSON-based flat-file storage |
-| **Routing** | Flask Application Factory |
+| **Markup** | HTML5 |
+| **Styling** | CSS3 (Custom Styles) |
+| **Logic** | Vanilla JavaScript (ES6+) |
+| **Data** | Local JSON / JavaScript Object |
 
 ---
 
 ### ✨ Key Features
-- **Instant Retrieval:** Parses and filters `questions.json` in real-time to provide fast results.
-- **Responsive Layout:** Optimized for various screen sizes using modern CSS principles.
-- **Code Highlighting Support:** Structured to display complex code blocks with clarity.
-- **Zero Configuration:** Runs locally with minimal setup—no external database like MySQL/PostgreSQL required.
+- **Client-Side Search:** Instant filtering of technical questions and answers.
+- **Responsive Design:** A clean interface that adapts to different screen sizes.
+- **Zero Dependencies:** No frameworks or libraries required—runs natively in any modern browser.
+- **Fast Performance:** Since there is no backend, queries are handled instantly by the browser.
 
 ---
 
 ### 📂 Project Structure
 ```text
 Codequery/
-├── app.py              # Core application logic and routing
-├── questions.json      # Local data repository (Questions & Solutions)
-├── static/             
-│   └── style.css       # Frontend UI styling
-└── templates/          
-    └── index.html      # Main user interface template
+├── index.html          # Main application structure
+├── style.css           # Custom UI styling and layout
+└── script.js           # Search logic and data rendering
