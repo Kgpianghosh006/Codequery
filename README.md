@@ -39,3 +39,13 @@ Codequery/
 ├── index.html          # Main application structure
 ├── style.css           # Custom UI styling and layout
 └── script.js           # Search logic and data rendering
+
+```
+
+### 🚀 How to Run
+
+1. **Clone the Repository**
+   ```bash
+   git clone [https://github.com/Kgpianghosh006/Codequery.git](https://github.com/Kgpianghosh006/Codequery.git)
+   cd Codequery
+2.  Open the Project Simply double-click the index.html file or open it with any web browser (Chrome, Firefox, Edge,       etc.).
