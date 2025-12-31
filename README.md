@@ -20,7 +20,7 @@ A high-performance, lightweight search utility built with Flask that allows user
 ### 🛠️ Technical Stack
 | Component | Technology |
 | :--- | :--- |
-| **Backend** | Python 3.x, Flask |
+| **Backend** | Flask |
 | **Frontend** | HTML5, CSS3 (Vanilla) |
 | **Data Engine** | JSON-based flat-file storage |
 | **Routing** | Flask Application Factory |
