@@ -1,51 +1,78 @@
-# 🚀 CodeQuery
+# DSA Search Engine
 
-A lightweight, browser-based search tool designed to query and display programming solutions and technical notes. This project runs entirely on the client side using vanilla web technologies.
+A full-stack, NLP-powered search engine for discovering Data Structures and Algorithms (DSA) problems across popular competitive programming platforms like LeetCode and Codeforces. 
 
----
+## ✨ Features
+- **Automated Scraping:** Uses Puppeteer to seamlessly aggregate problem sets and their descriptions from various coding platforms.
+- **Smart NLP Search:** Implements a custom in-memory search engine utilizing Term Frequency-Inverse Document Frequency (TF-IDF) and Cosine Similarity for highly relevant search retrieval (via the `natural` library).
+- **Zero-Downtime Indexing:** Background index generation allows the REST API to start up instantly, handling traffic and providing status updates while processing large problem corpus files in the background.
+- **Clean Frontend UI:** Contains a sleek vanilla HTML/CSS/JS frontend to query and visualize the search results seamlessly.
 
-<div align="left">
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
-  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-</div>
+## 🛠️ Tech Stack
+- **Backend:** Node.js, Express
+- **Search Engine:** `natural` (NLP, TF-IDF vectorization)
+- **Web Scraping:** Puppeteer
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript
 
----
+## 📋 Prerequisites
+- **Node.js** (v16+ recommended)
+- **npm** (Node Package Manager)
 
-### 📌 Overview
-**CodeQuery** is a front-end application that allows users to search through a collection of code snippets. It is designed for speed and simplicity, requiring no server-side processing or database setup.
+## 🚀 Getting Started
 
-### 🛠️ Tech Stack
-| Component | Technology |
-| :--- | :--- |
-| **Markup** | HTML5 |
-| **Styling** | CSS3 (Custom Styles) |
-| **Logic** | Vanilla JavaScript (ES6+) |
-| **Data** | Local JSON / JavaScript Object |
-
----
-
-### ✨ Key Features
-- **Client-Side Search:** Instant filtering of technical questions and answers.
-- **Responsive Design:** A clean interface that adapts to different screen sizes.
-- **Zero Dependencies:** No frameworks or libraries required—runs natively in any modern browser.
-- **Fast Performance:** Since there is no backend, queries are handled instantly by the browser.
-
----
-
-### 📂 Project Structure
-```text
-Codequery/
-├── index.html          # Main application structure
-├── style.css           # Custom UI styling and layout
-└── script.js           # Search logic and data rendering
-
+### 1. Installation
+Clone the repository and install dependencies:
+```bash
+npm install
 ```
 
-### 🚀 How to Run
+### 2. Scraping and Building the Corpus
+Fetch the latest problems and their full descriptions to build the local search corpus:
 
-1. **Clone the Repository**
-   ```bash
-   git clone [https://github.com/Kgpianghosh006/Codequery.git](https://github.com/Kgpianghosh006/Codequery.git)
-   cd Codequery
-2.  Open the Project Simply double-click the index.html file or open it with any web browser (Chrome, Firefox, Edge,       etc.).
+```bash
+# Scrape basic problem data (URLs, titles)
+npm run scrape:api
+
+# Fetch full problem descriptions to build the search corpus
+npm run build:corpus
+```
+*(Note: To limit the number of problems processed during testing, you can run the corpus builder directly with a limit flag: `node scripts/build_corpus.js --limit 50`)*
+
+### 3. Running the Server
+Start the Express server:
+```bash
+npm start
+```
+The server will start on port `5000` (or `process.env.PORT`) and begin building the search index in the background.
+
+### 4. Using the Search UI
+Open your browser and navigate to `http://localhost:5000/` to interact with the search engine frontend.
+
+## 📡 API Reference
+
+### `POST /search`
+Searches the corpus for relevant DSA problems based on your natural language query.
+
+**Request Body (JSON):**
+```json
+{
+  "query": "binary search tree traversal"
+}
+```
+
+**Response:**
+- `200 OK`: Returns the top 10 matching results.
+  ```json
+  {
+    "results": [
+      {
+        "title": "Validate Binary Search Tree",
+        "url": "https://leetcode.com/...",
+        "description": "Given the root of a binary tree...",
+        "platform": "LeetCode"
+      }
+    ]
+  }
+  ```
+- `503 Service Unavailable`: Returned if the search index is still compiling in the background.
+- `400 Bad Request`: Returned if the query payload is invalid or missing.
