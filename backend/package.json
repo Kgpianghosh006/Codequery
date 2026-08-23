@@ -1,0 +1,18 @@
+{
+  "name": "codequery-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CodeQuery TF-IDF search API — deployed to Render",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.18.2",
+    "natural": "^6.2.0",
+    "stopword": "^1.0.10"
+  }
+}

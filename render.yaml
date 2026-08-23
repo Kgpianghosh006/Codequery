@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: codequery-backend
+    env: node
+    # Since our backend lives in the backend/ folder:
+    rootDir: backend
+    # Render command to install dependencies:
+    buildCommand: npm install
+    # Render command to start the server:
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: PORT
+        value: 5000

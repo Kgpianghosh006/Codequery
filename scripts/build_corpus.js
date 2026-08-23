@@ -1,156 +1,117 @@
-import fs from "fs/promises";
-import puppeteer from "puppeteer";
+/**
+ * scripts/build_corpus.js
+ *
+ * Corpus Builder
+ *
+ * Drives all registered scraper adapters, saves per-platform JSON files,
+ * and produces a combined corpus consumed by the TF-IDF search server.
+ *
+ * Usage:
+ *   node scripts/build_corpus.js              # scrape all platforms, default limit
+ *   node scripts/build_corpus.js --limit=50   # cap at 50 problems per platform
+ *   node scripts/build_corpus.js --limit=5 --no-headless
+ *
+ * Output files:
+ *   backend/corpus/<PlatformName>.json    — per-platform raw data
+ *   backend/corpus/combined_corpus.json   — all platforms merged (canonical path)
+ *   backend/corpus/all_problems.json      — legacy path read by server.js (TF-IDF)
+ *
+ * Paths are resolved relative to the project root (where this script is run from),
+ * so always run as: node scripts/build_corpus.js from the project root.
+ */
 
-const PROBLEMS_PATH = "./problems/problems_combined.json";
-const OUT_PATH = "./corpus/all_problems.json";
+import fs from "fs/promises";
+import path from "path";
+import { scrapers } from "./scrapers/index.js";
+
+// ---------------------------------------------------------------------------
+// CLI argument parsing
+// ---------------------------------------------------------------------------
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const out = { limit: 0, headless: true };
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (a === "--limit" && args[i + 1]) {
-      out.limit = parseInt(args[i + 1], 10) || 0;
-      i++;
-    } else if (a === "--no-headless") {
-      out.headless = false;
+  const out = { limit: 100 };
+
+  for (const arg of args) {
+    // Accept both --limit=50 and --limit 50 styles.
+    const eqMatch = arg.match(/^--limit=(\d+)$/);
+    if (eqMatch) {
+      out.limit = parseInt(eqMatch[1], 10) || 0;
+    }
+    const spaceIdx = args.indexOf("--limit");
+    if (spaceIdx !== -1 && args[spaceIdx + 1] && !args[spaceIdx + 1].startsWith("--")) {
+      out.limit = parseInt(args[spaceIdx + 1], 10) || 0;
     }
   }
+
   return out;
 }
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+// ---------------------------------------------------------------------------
+// File helpers
+// ---------------------------------------------------------------------------
+
+async function ensureDir(dirPath) {
+  await fs.mkdir(dirPath, { recursive: true });
 }
 
-async function loadProblems() {
-  const raw = await fs.readFile(PROBLEMS_PATH, "utf8");
-  return JSON.parse(raw);
+async function saveJson(filePath, data) {
+  await ensureDir(path.dirname(filePath));
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
-async function loadExistingCorpus() {
-  try {
-    const raw = await fs.readFile(OUT_PATH, "utf8");
-    return JSON.parse(raw);
-  } catch (e) {
-    return null;
-  }
-}
-
-async function saveCorpus(corpus) {
-  await fs.mkdir("./corpus", { recursive: true });
-  await fs.writeFile(OUT_PATH, JSON.stringify(corpus, null, 2));
-}
-
-async function extractDescription(page, p) {
-  const url = p.url;
-  try {
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
-
-    // Try several selectors depending on platform
-    if (p.source === "codeforces" || url.includes("codeforces.com")) {
-      // Codeforces: problem-statement structure
-      const desc = await page.evaluate(() => {
-        const node = document.querySelector('.problem-statement');
-        if (!node) return null;
-        const parts = node.querySelectorAll('div');
-        // most pages: title is first, statement is second/third
-        for (const d of parts) {
-          const text = d.innerText && d.innerText.trim();
-          if (text && /input|output|note/i.test(text) === false && text.length > 20) {
-            return text.replace(/\r\n/g, ' ').replace(/\n+/g, ' ').trim();
-          }
-        }
-        return node.innerText.trim();
-      });
-      return desc;
-    }
-
-    if (p.source === "leetcode" || url.includes("leetcode.com")) {
-      // LeetCode: try multiple selectors
-      const desc = await page.evaluate(() => {
-        const trySel = (s) => {
-          const el = document.querySelector(s);
-          if (!el) return null;
-          const text = el.innerText || el.textContent || '';
-          if (text.trim().length < 20) return null;
-          return text.replace(/\r\n/g, ' ').replace(/\n+/g, ' ').trim();
-        };
-
-        return (
-          trySel('div[data-track-load="description_content"]') ||
-          trySel('.question-content') ||
-          trySel('.content__u3I1') ||
-          trySel('#description') ||
-          null
-        );
-      });
-      return desc;
-    }
-
-    // Generic fallback: return main article/text nodes
-    const generic = await page.evaluate(() => {
-      const body = document.querySelector('body');
-      if (!body) return null;
-      return body.innerText.slice(0, 2000).replace(/\r\n/g, ' ').replace(/\n+/g, ' ').trim();
-    });
-    return generic;
-  } catch (err) {
-    console.warn('Failed to fetch', url, err.message || err);
-    return null;
-  }
-}
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
 
 async function main() {
-  const { limit, headless } = parseArgs();
-  console.log('build_corpus.js starting — headless=', headless, 'limit=', limit || 'ALL');
+  const { limit } = parseArgs();
 
-  const problems = await loadProblems();
-  let corpus = (await loadExistingCorpus()) || problems.map((p) => ({ ...p, description: p.description || null }));
+  console.log("=".repeat(60));
+  console.log("build_corpus.js starting");
+  console.log(  Platforms : );
+  console.log(  Limit     :  problems per platform);
+  console.log("=".repeat(60));
 
-  // map url -> index for quick lookup
-  const urlToIdx = new Map();
-  corpus.forEach((p, i) => urlToIdx.set(p.url, i));
+  const allProblems = [];
 
-  const browser = await puppeteer.launch({ headless, args: ['--no-sandbox'] });
-  const page = await browser.newPage();
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
+  for (const [platformName, fetchProblems] of Object.entries(scrapers)) {
+    console.log(\n▶ Running scraper: );
 
-  const total = corpus.length;
-  const toProcess = [];
-  for (let i = 0; i < total; i++) {
-    if (limit && toProcess.length >= limit) break;
-    if (!corpus[i].description || corpus[i].description === null) toProcess.push(i);
-  }
-
-  console.log('Total problems:', total, 'to fetch descriptions for:', toProcess.length);
-
-  let processed = 0;
-  for (const idx of toProcess) {
-    const p = corpus[idx];
-    const desc = await extractDescription(page, p);
-    if (desc) corpus[idx].description = desc;
-
-    processed++;
-    if (processed % 10 === 0) {
-      console.log(`Processed ${processed}/${toProcess.length} (idx ${idx})`);
+    let problems = [];
+    try {
+      problems = await fetchProblems({ limit: limit || Infinity });
+    } catch (err) {
+      // A whole-adapter failure is logged but we continue with other platforms.
+      console.error(`[${platformName}] ❌ Scraper failed entirely: `);
+      console.error(err.stack);
     }
 
-    if (processed % 100 === 0) {
-      console.log('Saving interim corpus...');
-      await saveCorpus(corpus);
-    }
+    console.log(`[${platformName}] Scraped ${problems.length} problem(s).`);
 
-    // polite delay
-    await sleep(500);
+    // Save per-platform file into backend/corpus/ (co-located with the server).
+    const platformFile = path.resolve(`./backend/corpus/${platformName}.json`);
+    await saveJson(platformFile, problems);
+    console.log(`[${platformName}] Saved → ${platformFile}`);
+
+    allProblems.push(...problems);
   }
 
-  await saveCorpus(corpus);
-  await browser.close();
-  console.log('Done — corpus saved to', OUT_PATH);
+  // Save combined corpus — new canonical path.
+  const combinedPath = path.resolve("./backend/corpus/combined_corpus.json");
+  await saveJson(combinedPath, allProblems);
+  console.log(`\n✅ Combined corpus → ${combinedPath}  (${allProblems.length} problems total)`);
+
+  // Also write legacy path so server.js (TF-IDF server) continues to work
+  // without any modification.
+  const legacyPath = path.resolve("./backend/corpus/all_problems.json");
+  await saveJson(legacyPath, allProblems);
+  console.log(`✅ Legacy corpus  → ${legacyPath}`);
+
+  console.log("\nDone.");
 }
 
 main().catch((err) => {
-  console.error('build_corpus failed:', err);
+  console.error("build_corpus.js failed:", err);
   process.exit(1);
 });

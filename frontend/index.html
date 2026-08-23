@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CodeQuery — search DSA problems across LeetCode, Codeforces, AtCoder and more in one place." />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔎</text></svg>"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <title>CodeQuery — Search DSA problems, instantly</title>
+  </head>
+  <body>
+    <div class="container">
+      <header class="hero-content">
+        <h1>CodeQuery</h1>
+        <p class="subhead">One search bar for every DSA problem you need.</p>
+        <p class="tagline">
+          <img src="assets/logos/leetcode.png" alt="LeetCode" class="platform-icon" />
+          <img src="assets/logos/codeforces.png" alt="Codeforces" class="platform-icon" />
+          <img src="assets/logos/AtCoder.png" alt="AtCoder" class="platform-icon" />
+          <span class="tagline-text">indexed and searchable in one place</span>
+        </p>
+      </header>
+
+      <form class="search-form" id="search-form">
+        <select id="platform-select" class="platform-select">
+          <option value="all">All Platforms</option>
+          <option value="LeetCode">LeetCode</option>
+          <option value="Codeforces">Codeforces</option>
+          <option value="AtCoder">AtCoder</option>
+        </select>
+        <label class="prompt-wrap" for="query-input">
+          <span class="prompt-glyph" aria-hidden="true">&gt;</span>
+          <input
+            id="query-input"
+            class="query-input"
+            type="text"
+            placeholder="binary search, dynamic programming, two pointers..."
+            autocomplete="off"
+          />
+        </label>
+        <button type="submit">Search</button>
+      </form>
+
+      <p class="cta">Search by title, tag, or topic — results are ranked across every platform we index.</p>
+
+      <div id="spinner" class="spinner hidden" aria-hidden="true"></div>
+
+      <div id="results" class="results"></div>
+    </div>
+
+    <footer class="site-footer">
+      <p>
+        &copy; 2025 CodeQuery — Developed by
+        <a href="https://github.com/Kgpianghosh006/Codequery" target="_blank" rel="noopener noreferrer">Avik Ghosh</a>
+      </p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

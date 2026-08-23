@@ -1,3 +1,20 @@
+/**
+ * @deprecated
+ *
+ * This file is superseded by the Adapter Pattern refactor.
+ * Use the new scraper pipeline instead:
+ *
+ *   node scripts/build_corpus.js [--limit=<n>]
+ *
+ * Individual platform adapters live in:
+ *   scripts/scrapers/leetcode.js
+ *   scripts/scrapers/codeforces.js
+ *   scripts/scrapers/index.js  (registry)
+ *
+ * This file is kept for historical reference only and will NOT be
+ * maintained going forward.
+ */
+
 import puppeteer from "puppeteer";
 import fsPromises from "fs/promises";
 

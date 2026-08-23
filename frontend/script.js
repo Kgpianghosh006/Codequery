@@ -1,5 +1,6 @@
 const form = document.getElementById("search-form");
 const input = document.getElementById("query-input");
+const platformSelect = document.getElementById("platform-select");
 const resultsDiv = document.getElementById("results");
 const spinner = document.getElementById("spinner");
 
@@ -8,15 +9,16 @@ form.addEventListener("submit", async (e) => {
 
   const query = input.value.trim();
   if (!query) return;
+  const platform = platformSelect ? platformSelect.value : "all";
 
   resultsDiv.innerHTML = "";
   spinner.classList.remove("hidden");
 
   try {
-    const res = await fetch("/search", {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, platform }),
     });
 
     if (res.status === 503) {
