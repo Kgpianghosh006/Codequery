@@ -232,8 +232,17 @@ app.post("/search", async (req, res) => {
 
   res.json({ results: top });
 });
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+app.get("/", (req, res) => {
+  res.status(200).send("CodeQuery Backend API is running.");
+});
+
 // Start server immediately so static assets and status are available
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
