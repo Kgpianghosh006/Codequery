@@ -1,10 +1,8 @@
 # CodeQuery — DSA Search Engine
 
-![CodeQuery Banner](frontend/assets/logos/leetcode.png) *(Preview placeholder)*
-
 **[Live Demo: codequery-dun.vercel.app](https://codequery-dun.vercel.app/)**
 
-CodeQuery is a blazingly fast, full-stack Natural Language Processing (NLP) search engine designed to discover Data Structures and Algorithms (DSA) problems across the most popular competitive programming platforms: **LeetCode**, **Codeforces**, and **AtCoder**.
+CodeQuery is a fast full-stack Natural Language Processing (NLP) search engine designed to discover Data Structures and Algorithms (DSA) problems across the most popular competitive programming platforms: **LeetCode**, **Codeforces**, and **AtCoder**.
 
 ## ✨ Features
 
