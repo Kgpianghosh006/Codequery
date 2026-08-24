@@ -88,14 +88,19 @@ async function loadProblemsAndBuildIndex() {
 
   console.log('Adding documents to TfIdf...');
   // Add documents: title boosted by duplicating, plus description and tags
-  problems.forEach((problem, idx) => {
+  for (let idx = 0; idx < problems.length; idx++) {
+    const problem = problems[idx];
     const tagText = (problem.tags || []).join(" ");
     const text = preprocess(
       `${problem.title} ${problem.title} ${problem.description || ""} ${tagText} ${tagText}`
     );
     tfidf.addDocument(text, idx.toString());
-    if ((idx + 1) % 2000 === 0) console.log('  added', idx + 1, 'docs');
-  });
+    
+    if ((idx + 1) % 2000 === 0) {
+      console.log('  added', idx + 1, 'docs');
+      await new Promise(r => setImmediate(r)); // yield event loop
+    }
+  }
 
   // Build document vectors and magnitudes for cosine similarity
   console.log('Building document vectors...');
@@ -103,7 +108,8 @@ async function loadProblemsAndBuildIndex() {
   docMagnitudes = [];
   platformIndex = new Map();
 
-  problems.forEach((problem, idx) => {
+  for (let idx = 0; idx < problems.length; idx++) {
+    const problem = problems[idx];
     const vector = {};
     let sumSquares = 0;
 
@@ -114,13 +120,17 @@ async function loadProblemsAndBuildIndex() {
 
     docVectors[idx] = vector;
     docMagnitudes[idx] = Math.sqrt(sumSquares);
-    if ((idx + 1) % 2000 === 0) console.log('  processed vectors for', idx + 1);
+    
+    if ((idx + 1) % 2000 === 0) {
+      console.log('  processed vectors for', idx + 1);
+      await new Promise(r => setImmediate(r)); // yield event loop
+    }
 
     // Index by platform (normalised lowercase key) for fast pre-filtering.
     const platformKey = (problem.platform || 'unknown').toLowerCase();
     if (!platformIndex.has(platformKey)) platformIndex.set(platformKey, []);
     platformIndex.get(platformKey).push(idx);
-  });
+  }
 
   const platformSummary = [...platformIndex.entries()]
     .map(([k, v]) => `${k}(${v.length})`)
