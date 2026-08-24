@@ -1,4 +1,4 @@
-# CodeQuery
+# CodeQuery - DSA Search Engine
 
 A full-stack, NLP-powered search engine for discovering Data Structures and Algorithms (DSA) problems across popular competitive programming platforms like LeetCode and Codeforces. 
 
