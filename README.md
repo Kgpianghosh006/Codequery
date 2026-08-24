@@ -90,9 +90,4 @@ Searches the mathematical vector space for relevant DSA problems based on your n
   ```
 - `503 Service Unavailable`: Returned if the TF-IDF search matrix is still compiling.
 - `400 Bad Request`: Returned if the query payload is missing.
-
-## Deployment Architecture
-- **Vercel (Frontend):** Root directory is set to `frontend/`. Optimized with `vercel.json` for aggressive edge caching.
-- **Render (Backend):** Root directory is set to `backend/`. Includes specialized health checks (`/health`) and event-loop yielding to prevent Node.js from failing Render's TCP port scans during heavy matrix computations. A `cron-job.org` worker pings the API every 14 minutes to prevent free-tier cold starts.
-
 ---
