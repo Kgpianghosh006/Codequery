@@ -1,78 +1,101 @@
-# CodeQuery - DSA Search Engine
+# CodeQuery — DSA Search Engine
 
-A full-stack, NLP-powered search engine for discovering Data Structures and Algorithms (DSA) problems across popular competitive programming platforms like LeetCode and Codeforces. 
+![CodeQuery Banner](frontend/assets/logos/leetcode.png) *(Preview placeholder)*
+
+**[Live Demo: codequery-dun.vercel.app](https://codequery-dun.vercel.app/)**
+
+CodeQuery is a blazingly fast, full-stack Natural Language Processing (NLP) search engine designed to discover Data Structures and Algorithms (DSA) problems across the most popular competitive programming platforms: **LeetCode**, **Codeforces**, and **AtCoder**.
 
 ## ✨ Features
-- **Automated Scraping:** Uses Puppeteer to seamlessly aggregate problem sets and their descriptions from various coding platforms.
-- **Smart NLP Search:** Implements a custom in-memory search engine utilizing Term Frequency-Inverse Document Frequency (TF-IDF) and Cosine Similarity for highly relevant search retrieval (via the `natural` library).
-- **Zero-Downtime Indexing:** Background index generation allows the REST API to start up instantly, handling traffic and providing status updates while processing large problem corpus files in the background.
-- **Clean Frontend UI:** Contains a sleek vanilla HTML/CSS/JS frontend to query and visualize the search results seamlessly.
+
+- **Massive Database:** Scrapes and indexes over **26,000+** coding problems in minutes.
+- **Smart NLP Search:** Implements a custom in-memory search engine utilizing Term Frequency-Inverse Document Frequency (TF-IDF) and Cosine Similarity (via the `natural` library) to map concept queries (e.g., *"binary search"*, *"two pointers"*) to exact algorithmic problems.
+- **GraphQL & DOM Bypasses:** Cleverly bypasses Cloudflare protections using Puppeteer to intercept internal GraphQL queries on LeetCode for lightning-fast metadata extraction.
+- **Split-Stack Deployment:** The frontend is statically hosted on the Vercel Edge Network, while the heavy NLP backend is hosted independently on Render.
+- **Zero-Downtime Indexing:** Background index generation allows the REST API to start up instantly and process incoming traffic while compiling the 26,000+ vector mathematical matrix in the background.
 
 ## 🛠️ Tech Stack
-- **Backend:** Node.js, Express
-- **Search Engine:** `natural` (NLP, TF-IDF vectorization)
-- **Web Scraping:** Puppeteer
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript
+
+- **Frontend:** Vanilla HTML5, CSS3, JavaScript (Deployed on **Vercel**)
+- **Backend:** Node.js, Express.js (Deployed on **Render**)
+- **Search Engine:** `natural` (NLP, TF-IDF vectorization, Cosine Similarity)
+- **Web Scraping:** Puppeteer (Headless Chromium)
 
 ## 📋 Prerequisites
-- **Node.js** (v16+ recommended)
+
+- **Node.js** (v18+ recommended)
 - **npm** (Node Package Manager)
 
-## 🚀 Getting Started
+## 🚀 Local Development
 
 ### 1. Installation
 Clone the repository and install dependencies:
 ```bash
+git clone https://github.com/Kgpianghosh006/Codequery.git
+cd Codequery
 npm install
 ```
 
 ### 2. Scraping and Building the Corpus
-Fetch the latest problems and their full descriptions to build the local search corpus:
+Fetch the latest problems, topic tags, and their descriptions to build the local search corpus. This script safely queries LeetCode, Codeforces, and AtCoder without getting rate-limited.
 
 ```bash
-# Scrape basic problem data (URLs, titles)
-npm run scrape:api
-
-# Fetch full problem descriptions to build the search corpus
+# Build the massive JSON corpus (Takes ~5 minutes for 26,000+ problems)
 npm run build:corpus
 ```
-*(Note: To limit the number of problems processed during testing, you can run the corpus builder directly with a limit flag: `node scripts/build_corpus.js --limit 50`)*
+*(Note: To limit the number of problems processed during testing, you can use the limit flag: `node scripts/build_corpus.js --limit 50`)*
 
-### 3. Running the Server
-Start the Express server:
+### 3. Running the Backend Server
+Start the Express API server:
 ```bash
-npm start
+node backend/server.js
 ```
-The server will start on port `5000` (or `process.env.PORT`) and begin building the search index in the background.
+The server will start on port `5000` and begin building the NLP vector index in the background. Wait for the `Index is ready` log.
 
-### 4. Using the Search UI
-Open your browser and navigate to `http://localhost:5000/` to interact with the search engine frontend.
+### 4. Running the Frontend
+In a separate terminal, serve the frontend:
+```bash
+npx serve frontend
+```
+Open `http://localhost:3000` in your browser. The `config.js` file will automatically detect you are running locally and route API calls to `localhost:5000`.
 
 ## 📡 API Reference
 
 ### `POST /search`
-Searches the corpus for relevant DSA problems based on your natural language query.
+Searches the mathematical vector space for relevant DSA problems based on your natural language query.
 
 **Request Body (JSON):**
 ```json
 {
-  "query": "binary search tree traversal"
+  "query": "binary search tree traversal",
+  "platform": "all" // Optional: "LeetCode", "Codeforces", "AtCoder", or "all"
 }
 ```
 
 **Response:**
-- `200 OK`: Returns the top 10 matching results.
+- `200 OK`: Returns the top 10 ranked results based on cosine similarity.
   ```json
   {
     "results": [
       {
-        "title": "Validate Binary Search Tree",
-        "url": "https://leetcode.com/...",
-        "description": "Given the root of a binary tree...",
-        "platform": "LeetCode"
+        "id": "two-sum",
+        "title": "Two Sum",
+        "url": "https://leetcode.com/problems/two-sum",
+        "description": "Given an array of integers nums and an integer target...",
+        "platform": "LeetCode",
+        "difficulty": "Easy",
+        "tags": ["Array", "Hash Table"],
+        "score": 0.8415
       }
     ]
   }
   ```
-- `503 Service Unavailable`: Returned if the search index is still compiling in the background.
-- `400 Bad Request`: Returned if the query payload is invalid or missing.
+- `503 Service Unavailable`: Returned if the TF-IDF search matrix is still compiling.
+- `400 Bad Request`: Returned if the query payload is missing.
+
+## 🤖 Deployment Architecture
+- **Vercel (Frontend):** Root directory is set to `frontend/`. Optimized with `vercel.json` for aggressive edge caching.
+- **Render (Backend):** Root directory is set to `backend/`. Includes specialized health checks (`/health`) and event-loop yielding to prevent Node.js from failing Render's TCP port scans during heavy matrix computations. A `cron-job.org` worker pings the API every 14 minutes to prevent free-tier cold starts.
+
+---
+&copy; 2026 CodeQuery — Developed by [Avik Ghosh](https://github.com/Kgpianghosh006)
