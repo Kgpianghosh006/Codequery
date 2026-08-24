@@ -22,11 +22,15 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    // allow requests with no origin or file:// origin
+    if (!origin || origin === "null") return callback(null, true);
     
-    // allow localhost and any sub-domain of vercel.app
-    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+    // allow any localhost/127.0.0.1 port and any vercel app
+    if (
+      origin.startsWith("http://localhost:") || 
+      origin.startsWith("http://127.0.0.1:") || 
+      origin.endsWith(".vercel.app")
+    ) {
       return callback(null, true);
     }
     
@@ -83,10 +87,11 @@ async function loadProblemsAndBuildIndex() {
   tfidf = new TfIdf();
 
   console.log('Adding documents to TfIdf...');
-  // Add documents: title boosted by duplicating, plus description
+  // Add documents: title boosted by duplicating, plus description and tags
   problems.forEach((problem, idx) => {
+    const tagText = (problem.tags || []).join(" ");
     const text = preprocess(
-      `${problem.title} ${problem.title} ${problem.description || ""}`
+      `${problem.title} ${problem.title} ${problem.description || ""} ${tagText} ${tagText}`
     );
     tfidf.addDocument(text, idx.toString());
     if ((idx + 1) % 2000 === 0) console.log('  added', idx + 1, 'docs');

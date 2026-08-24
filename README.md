@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# DSA Search Engine
-=======
 # CodeQuery
->>>>>>> c097e0227c659915219b5e29357e47ca22c48cde
 
 A full-stack, NLP-powered search engine for discovering Data Structures and Algorithms (DSA) problems across popular competitive programming platforms like LeetCode and Codeforces. 
 
