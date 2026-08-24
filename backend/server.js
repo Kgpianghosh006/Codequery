@@ -212,7 +212,7 @@ app.post("/search", async (req, res) => {
     return { idx, score: cosine };
   });
 
-  // ── Return top 10 non-zero matches with full schema ────────────────────────
+  // Return top 10 non-zero matches with full schema 
   const top = scores
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score)
@@ -220,12 +220,12 @@ app.post("/search", async (req, res) => {
     .map(({ idx, score }) => {
       const p = problems[idx];
       return {
-        id:         p.id         ?? null,
-        title:      p.title,
-        url:        p.url,
-        platform:   p.platform   ?? null,
+        id: p.id ?? null,
+        title: p.title,
+        url: p.url,
+        platform: p.platform ?? null,
         difficulty: p.difficulty ?? null,
-        tags:       p.tags       ?? [],
+        tags: p.tags ?? [],
         score,                           // normalised cosine similarity [0, 1]
       };
     });
